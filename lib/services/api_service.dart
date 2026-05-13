@@ -54,10 +54,13 @@ class ApiService {
           'Accept': 'application/json',
         },
       );
+      print('Status Code GET: ${response.statusCode}');
+      print('Response Body GET: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List productsJson = data['products'];
+        final List productsJson = data['data']['products'];
+
         return productsJson
             .map((json) => PokemonCardModel.fromJson(json))
             .toList();

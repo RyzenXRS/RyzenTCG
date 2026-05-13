@@ -46,9 +46,28 @@ class _CatalogScreenState extends State<CatalogScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text(
-          'Katalog RYZENTCG',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        title: Row(
+          children: [
+            // Memutar icon 180 derajat (2 kali 90 derajat)
+            // agar warna putih berada di bawah sesuai permintaanmu
+            const RotatedBox(
+              quarterTurns: 2,
+              child: Icon(
+                Icons.catching_pokemon,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
+            const SizedBox(width: 12), // Memberi jarak ke samping teks
+            const Text(
+              'Collection RYZENTCG',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            ),
+          ],
         ),
         backgroundColor: Colors.red,
         iconTheme: const IconThemeData(color: Colors.white),
