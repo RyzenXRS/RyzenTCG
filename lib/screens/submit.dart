@@ -92,17 +92,17 @@ class _SubmitScreenState extends State<SubmitScreen> {
             const Icon(Icons.send_rounded, size: 60, color: Colors.red),
             const SizedBox(height: 16),
             const Text(
-              'Langkah Terakhir!',
+              'Submit Tugas!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Isi detail tugas dan masukkan link repository GitHub kamu.',
+              'Masukan isi detail tugas disini !',
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 32),
 
-            // Input 1: Nama Proyek/Tugas
+            // Nama
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
@@ -115,7 +115,7 @@ class _SubmitScreenState extends State<SubmitScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Input 2: Harga
+            // Harga
             TextField(
               controller: _priceController,
               keyboardType: TextInputType.number,
@@ -132,7 +132,7 @@ class _SubmitScreenState extends State<SubmitScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Input 3: Deskripsi
+            // Deskripsi
             TextField(
               controller: _descController,
               maxLines: 2,
@@ -146,7 +146,7 @@ class _SubmitScreenState extends State<SubmitScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Input 4: Link GitHub
+            // Link GitHub
             TextField(
               controller: _githubController,
               decoration: InputDecoration(
