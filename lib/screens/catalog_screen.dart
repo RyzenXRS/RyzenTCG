@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '/models/pokemon_card.dart';
 import 'add_card.dart';
+import 'submit.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -46,11 +47,9 @@ class _CatalogScreenState extends State<CatalogScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           children: [
-            // Memutar icon 180 derajat (2 kali 90 derajat)
-            // agar warna putih berada di bawah sesuai permintaanmu
-            const RotatedBox(
+            RotatedBox(
               quarterTurns: 2,
               child: Icon(
                 Icons.catching_pokemon,
@@ -58,8 +57,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 size: 30,
               ),
             ),
-            const SizedBox(width: 12), // Memberi jarak ke samping teks
-            const Text(
+            SizedBox(width: 12),
+            Text(
               'Collection RYZENTCG',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -71,22 +70,29 @@ class _CatalogScreenState extends State<CatalogScreen> {
         ),
         backgroundColor: Colors.red,
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.send, color: Colors.white),
+            tooltip: 'Submit Tugas',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SubmitScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<PokemonCardModel>>(
         future: _futureCards,
         builder: (context, snapshot) {
-          // Menampilkan loading spinner saat menunggu data dari server
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(color: Colors.red),
             );
-          }
-          // Error Handling terjadi error jaringan
-          else if (snapshot.hasError) {
+          } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          // Error Handling jika data kosong (belum ada kartu yang ditambahkan)
-          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Text(
                 'Koleksi masih kosong, Trainer!\nYuk tambah kartu pertamamu.',
@@ -96,7 +102,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
             );
           }
 
-          // Jika data berhasil ditarik dan ada isinya
           final cards = snapshot.data!;
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
@@ -113,7 +118,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   contentPadding: const EdgeInsets.all(16.0),
                   leading: const CircleAvatar(
                     backgroundColor: Colors.red,
-                    child: Icon(Icons.catching_pokemon, color: Colors.white),
+                    child: RotatedBox(
+                      quarterTurns: 2,
+                      child: Icon(Icons.catching_pokemon, color: Colors.white),
+                    ),
                   ),
                   title: Text(
                     card.name,
@@ -154,7 +162,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
             context,
             MaterialPageRoute(builder: (context) => const AddCardScreen()),
           ).then((_) => _refreshCards());
-          // .then() ini penting banget! Fungsinya agar list kartu otomatis me-refresh saat form ditutup
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),

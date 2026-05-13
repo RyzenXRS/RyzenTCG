@@ -1,32 +1,36 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import '/models/pokemon_card.dart';
-import '/screens/submit.dart';
+import '../models/pokemon_card.dart';
 
-class AddCardScreen extends StatefulWidget {
-  const AddCardScreen({super.key});
+class SubmitScreen extends StatefulWidget {
+  const SubmitScreen({super.key});
 
   @override
-  State<AddCardScreen> createState() => _AddCardScreenState();
+  State<SubmitScreen> createState() => _SubmitScreenState();
 }
 
-class _AddCardScreenState extends State<AddCardScreen> {
+class _SubmitScreenState extends State<SubmitScreen> {
+  // Kita siapkan 4 Controller untuk 4 inputan
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
+  final TextEditingController _githubController = TextEditingController();
+
   bool _isLoading = false;
 
-  void _handleSave() async {
-    // Validasi input
+  void _handleSubmit() async {
+    // 1. Validasi Input agar tidak ada yang kosong
     if (_nameController.text.isEmpty ||
         _priceController.text.isEmpty ||
-        _descController.text.isEmpty) {
+        _descController.text.isEmpty ||
+        _githubController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Semua kolom harus diisi, Trainer!')),
+        const SnackBar(content: Text('Semua kolom wajib diisi, Trainer!')),
       );
       return;
     }
 
+    // 2. Validasi Harga (harus angka)
     int? parsedPrice = int.tryParse(_priceController.text);
     if (parsedPrice == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -39,14 +43,16 @@ class _AddCardScreenState extends State<AddCardScreen> {
       _isLoading = true;
     });
 
-    CardRequestModel newCard = CardRequestModel(
-      name: _nameController.text,
+    // 3. Masukkan data dari inputan TextFields ke dalam Model
+    SubmitTaskModel taskData = SubmitTaskModel(
+      name: _nameController.text.trim(),
       price: parsedPrice,
-      description: _descController.text,
+      description: _descController.text.trim(),
+      githubUrl: _githubController.text.trim(),
     );
 
-    // Panggil fungsi API
-    bool success = await ApiService.addCard(newCard);
+    // 4. Kirim ke API Submit
+    bool success = await ApiService.submitTask(taskData);
 
     setState(() {
       _isLoading = false;
@@ -54,13 +60,14 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kartu berhasil ditambahkan ke koleksi!')),
+        const SnackBar(content: Text('Tugas berhasil dikirim ke asisten! 🎉')),
       );
-      // Kembali ke halaman sebelumnya (Katalog)
-      Navigator.pop(context);
+      Navigator.pop(context); // Kembali ke halaman katalog jika sukses
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal menambahkan kartu ke server.')),
+        const SnackBar(
+          content: Text('Gagal mengirim tugas. Coba cek lagi datamu.'),
+        ),
       );
     }
   }
@@ -70,79 +77,50 @@ class _AddCardScreenState extends State<AddCardScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Row(
-          children: [
-            // RotatedBox dihapus, kembali menggunakan Icon murni
-            Icon(Icons.catching_pokemon, color: Colors.white, size: 30),
-            SizedBox(width: 12), // Memberi jarak ke samping teks
-            Text(
-              'Collection RYZENTCG',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 20,
-              ),
-            ),
-          ],
+        title: const Text(
+          'Submit Tugas',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.red,
         iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.send, color: Colors.white),
-            tooltip: 'Submit Tugas',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SubmitScreen()),
-              );
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Icon(Icons.send_rounded, size: 60, color: Colors.red),
+            const SizedBox(height: 16),
             const Text(
-              'Daftarkan Kartumu!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
+              'Langkah Terakhir!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Masukkan detail kartu Pokemon yang baru saja kamu dapatkan.',
+              'Isi detail tugas dan masukkan link repository GitHub kamu.',
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 32),
 
-            // Input Nama Kartu
+            // Input 1: Nama Proyek/Tugas
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Nama Kartu',
-                prefixIcon: const Icon(Icons.style, color: Colors.red),
+                labelText: 'Nama / Judul Tugas',
+                prefixIcon: const Icon(Icons.title, color: Colors.red),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.red, width: 2),
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
-            // Input Harga Kartu
+            // Input 2: Harga
             TextField(
               controller: _priceController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: 'Harga / Market Value (Rp)',
+                labelText: 'Harga (Angka)',
                 prefixIcon: const Icon(
                   Icons.monetization_on,
                   color: Colors.green,
@@ -150,21 +128,31 @@ class _AddCardScreenState extends State<AddCardScreen> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                focusedBorder: OutlineInputBorder(
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Input 3: Deskripsi
+            TextField(
+              controller: _descController,
+              maxLines: 2,
+              decoration: InputDecoration(
+                labelText: 'Pesan / Deskripsi Singkat',
+                alignLabelWithHint: true,
+                border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.green, width: 2),
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
-            // Input Deskripsi Kartu
+            // Input 4: Link GitHub
             TextField(
-              controller: _descController,
-              maxLines: 4,
+              controller: _githubController,
               decoration: InputDecoration(
-                labelText: 'Deskripsi / Kondisi / Efek Kartu',
-                alignLabelWithHint: true,
+                labelText: 'Link Repository GitHub',
+                hintText: 'https://github.com/username/repo',
+                prefixIcon: const Icon(Icons.link, color: Colors.blue),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -176,7 +164,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Tombol Simpan
+            // Tombol Submit
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -188,11 +176,11 @@ class _AddCardScreenState extends State<AddCardScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: _isLoading ? null : _handleSave,
+                onPressed: _isLoading ? null : _handleSubmit,
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
-                        'SIMPAN KARTU',
+                        'KIRIM TUGAS',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
