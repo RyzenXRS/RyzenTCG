@@ -106,7 +106,7 @@ class _SubmitScreenState extends State<SubmitScreen> {
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Nama / Judul Tugas',
+                labelText: 'Nama Kartu',
                 prefixIcon: const Icon(Icons.title, color: Colors.red),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
